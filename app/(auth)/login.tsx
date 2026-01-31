@@ -1,11 +1,11 @@
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
@@ -76,7 +76,7 @@ export default function LoginScreen() {
         </Button>
 
         <View style={styles.footer}>
-          <Text variant="bodyMedium">Don't have an account? </Text>
+          <Text variant="bodyMedium">Don&apos;t have an account? </Text>
           <Link href="/(auth)/register" asChild>
             <Button mode="text" compact>
               Register
