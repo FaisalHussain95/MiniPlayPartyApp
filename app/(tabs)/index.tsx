@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -41,11 +41,14 @@ export default function HomeScreen() {
     }
   }, [token, user?.id]);
 
-  useEffect(() => {
-    if (user) {
-      fetchMyRooms();
-    }
-  }, [user, fetchMyRooms]);
+  // Refetch rooms when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchMyRooms();
+      }
+    }, [user, fetchMyRooms]),
+  );
 
   const handleLogout = async () => {
     setLoggingOut(true);
