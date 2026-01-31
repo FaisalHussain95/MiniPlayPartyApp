@@ -7,6 +7,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import "react-native-reanimated";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider } from "@/contexts/auth-context";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -20,23 +21,25 @@ export default function RootLayout() {
   const paperTheme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
 
   return (
-    <AuthProvider>
-      <PaperProvider theme={paperTheme}>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(rooms)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="modal"
-              options={{ presentation: "modal", title: "Modal" }}
-            />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </PaperProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <PaperProvider theme={paperTheme}>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(rooms)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="modal"
+                options={{ presentation: "modal", title: "Modal" }}
+              />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </PaperProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }

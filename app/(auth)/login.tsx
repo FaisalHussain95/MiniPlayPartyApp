@@ -8,14 +8,17 @@ import {
   View,
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export default function LoginScreen() {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const backgroundColor = useThemeColor({}, "background");
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -38,57 +41,62 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.content}>
-        <Text variant="headlineLarge" style={styles.title}>
-          MiniPlayParty
-        </Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>
-          Sign in to join or create rooms
-        </Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.content}>
+          <Text variant="headlineLarge" style={styles.title}>
+            MiniPlayParty
+          </Text>
+          <Text variant="bodyLarge" style={styles.subtitle}>
+            Sign in to join or create rooms
+          </Text>
 
-        <TextInput
-          label="Username"
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-          style={styles.input}
-        />
+          <TextInput
+            label="Username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            style={styles.input}
+          />
 
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-        />
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.input}
+          />
 
-        <Button
-          mode="contained"
-          onPress={handleLogin}
-          loading={loading}
-          style={styles.button}
-        >
-          Sign in
-        </Button>
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            loading={loading}
+            style={styles.button}
+          >
+            Sign in
+          </Button>
 
-        <View style={styles.footer}>
-          <Text variant="bodyMedium">Don&apos;t have an account? </Text>
-          <Link href="/(auth)/register" asChild>
-            <Button mode="text" compact>
-              Register
-            </Button>
-          </Link>
+          <View style={styles.footer}>
+            <Text variant="bodyMedium">Don&apos;t have an account? </Text>
+            <Link href="/(auth)/register" asChild>
+              <Button mode="text" compact>
+                Register
+              </Button>
+            </Link>
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },

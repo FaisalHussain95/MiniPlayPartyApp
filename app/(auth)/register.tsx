@@ -8,8 +8,10 @@ import {
     View,
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -17,6 +19,7 @@ export default function RegisterScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const backgroundColor = useThemeColor({}, "background");
 
   const handleRegister = async () => {
     if (!name || !username || !password) {
@@ -39,64 +42,69 @@ export default function RegisterScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.content}>
-        <Text variant="headlineLarge" style={styles.title}>
-          Create account
-        </Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>
-          Join MiniPlayParty and start playing
-        </Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.content}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Create account
+          </Text>
+          <Text variant="bodyLarge" style={styles.subtitle}>
+            Join MiniPlayParty and start playing
+          </Text>
 
-        <TextInput
-          label="Display name"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-        />
+          <TextInput
+            label="Display name"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+          />
 
-        <TextInput
-          label="Username"
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-          style={styles.input}
-        />
+          <TextInput
+            label="Username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            style={styles.input}
+          />
 
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-        />
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.input}
+          />
 
-        <Button
-          mode="contained"
-          onPress={handleRegister}
-          loading={loading}
-          style={styles.button}
-        >
-          Create account
-        </Button>
+          <Button
+            mode="contained"
+            onPress={handleRegister}
+            loading={loading}
+            style={styles.button}
+          >
+            Create account
+          </Button>
 
-        <View style={styles.footer}>
-          <Text variant="bodyMedium">Already have an account? </Text>
-          <Link href="/(auth)/login" asChild>
-            <Button mode="text" compact>
-              Sign in
-            </Button>
-          </Link>
+          <View style={styles.footer}>
+            <Text variant="bodyMedium">Already have an account? </Text>
+            <Link href="/(auth)/login" asChild>
+              <Button mode="text" compact>
+                Sign in
+              </Button>
+            </Link>
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
