@@ -1,11 +1,19 @@
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
-import { ActivityIndicator, Button, Card, Text } from "react-native-paper";
+import { Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Button,
+  Card,
+  H1,
+  H3,
+  Paragraph,
+  Spinner,
+  Text,
+  XStack,
+  YStack,
+} from "tamagui";
 
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { useAuth } from "@/contexts/auth-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Room, roomsApi } from "@/services/api";
@@ -14,6 +22,7 @@ export default function HomeScreen() {
   const { user, token, logout } = useAuth();
   const [myRooms, setMyRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const backgroundColor = useThemeColor({}, "background");
 
   const fetchMyRooms = useCallback(async () => {
@@ -21,7 +30,6 @@ export default function HomeScreen() {
     setLoading(true);
     try {
       const data = await roomsApi.list(token);
-      // Filter to only rooms where I'm a member
       const rooms = data.rooms.filter((room) =>
         room.users.some((u) => u.id === user?.id),
       );
@@ -39,105 +47,157 @@ export default function HomeScreen() {
     }
   }, [user, fetchMyRooms]);
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await logout();
+    setLoggingOut(false);
+  };
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.header}>
-          <ThemedText type="title">MiniPlayParty</ThemedText>
-          <ThemedText type="subtitle">
-            {user ? `Welcome, ${user.name}!` : "Rooms hub"}
-          </ThemedText>
-          <ThemedText>
-            Create a room or jump into an existing one to start a mini‑game with
-            friends.
-          </ThemedText>
-        </ThemedView>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <YStack padding="$4" gap="$5">
+          {/* Header */}
+          <YStack gap="$2">
+            <H1>MiniPlayParty</H1>
+            <Text fontSize="$5" color="$gray11">
+              {user ? `Welcome, ${user.name}!` : "Rooms hub"}
+            </Text>
+            <Paragraph color="$gray10">
+              Create a room or jump into an existing one to start a mini‑game
+              with friends.
+            </Paragraph>
+          </YStack>
 
-        <ThemedView style={styles.actions}>
-          {user ? (
-            <>
-              <Button
-                mode="contained"
-                onPress={() => router.push("/(rooms)/create")}
-              >
-                Create room
-              </Button>
-              <Button
-                mode="outlined"
-                onPress={() => router.push("/(rooms)/list")}
-              >
-                Browse rooms
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                mode="contained"
-                onPress={() => router.push("/(auth)/login")}
-              >
-                Sign in
-              </Button>
-              <Button
-                mode="outlined"
-                onPress={() => router.push("/(auth)/register")}
-              >
-                Register
-              </Button>
-            </>
-          )}
-        </ThemedView>
-
-        {user && (
-          <ThemedView style={styles.section}>
-            <ThemedText type="subtitle">Your rooms</ThemedText>
-
-            {loading ? (
-              <ActivityIndicator style={styles.loader} />
-            ) : myRooms.length > 0 ? (
-              myRooms.slice(0, 3).map((room) => (
-                <Card
-                  key={room.id}
-                  style={styles.card}
-                  onPress={() => router.push(`/(rooms)/${room.id}`)}
+          {/* Action Buttons */}
+          <XStack gap="$3">
+            {user ? (
+              <>
+                <Button
+                  flex={1}
+                  size="$4"
+                  theme="active"
+                  onPress={() => router.push("/(rooms)/create")}
                 >
-                  <Card.Title
-                    title={room.name}
-                    subtitle={`${room.users.length} member${room.users.length !== 1 ? "s" : ""}`}
-                  />
-                  <Card.Actions>
-                    <Button onPress={() => router.push(`/(rooms)/${room.id}`)}>
-                      Open
-                    </Button>
-                  </Card.Actions>
-                </Card>
-              ))
+                  Create room
+                </Button>
+                <Button
+                  flex={1}
+                  size="$4"
+                  variant="outlined"
+                  onPress={() => router.push("/(rooms)/list")}
+                >
+                  Browse rooms
+                </Button>
+              </>
             ) : (
-              <Card style={styles.card}>
-                <Card.Content>
-                  <Text variant="bodyMedium" style={styles.emptyText}>
-                    You don't have any rooms yet.
-                  </Text>
-                  <Text variant="bodySmall" style={styles.emptyHint}>
-                    Create one or ask someone to invite you!
-                  </Text>
-                </Card.Content>
-                <Card.Actions>
-                  <Button onPress={() => router.push("/(rooms)/create")}>
-                    Create room
-                  </Button>
-                  <Button onPress={() => router.push("/(rooms)/list")}>
-                    Browse
-                  </Button>
-                </Card.Actions>
-              </Card>
+              <>
+                <Button
+                  flex={1}
+                  size="$4"
+                  theme="active"
+                  onPress={() => router.push("/(auth)/login")}
+                >
+                  Sign in
+                </Button>
+                <Button
+                  flex={1}
+                  size="$4"
+                  variant="outlined"
+                  onPress={() => router.push("/(auth)/register")}
+                >
+                  Register
+                </Button>
+              </>
             )}
+          </XStack>
 
-            <Button mode="text" onPress={logout}>
-              Sign out
-            </Button>
-          </ThemedView>
-        )}
-      </ThemedView>
+          {/* User's Rooms Section */}
+          {user && (
+            <YStack gap="$3">
+              <H3>Your rooms</H3>
+
+              {loading ? (
+                <YStack paddingVertical="$5" alignItems="center">
+                  <Spinner size="large" />
+                </YStack>
+              ) : myRooms.length > 0 ? (
+                <YStack gap="$2">
+                  {myRooms.slice(0, 3).map((room) => (
+                    <Pressable
+                      key={room.id}
+                      onPress={() => router.push(`/(rooms)/${room.id}`)}
+                    >
+                      <Card
+                        elevation="$1"
+                        borderWidth={1}
+                        borderColor="$gray5"
+                        padding="$3"
+                      >
+                        <XStack
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
+                          <YStack>
+                            <Text fontWeight="600">{room.name}</Text>
+                            <Text fontSize="$2" color="$gray10">
+                              {room.users.length} member
+                              {room.users.length === 1 ? "" : "s"}
+                            </Text>
+                          </YStack>
+                          <Button
+                            size="$2"
+                            chromeless
+                            onPress={() => router.push(`/(rooms)/${room.id}`)}
+                          >
+                            Open
+                          </Button>
+                        </XStack>
+                      </Card>
+                    </Pressable>
+                  ))}
+                </YStack>
+              ) : (
+                <Card borderWidth={1} borderColor="$gray5" padding="$4">
+                  <YStack gap="$2" alignItems="center">
+                    <Text textAlign="center">
+                      You don&apos;t have any rooms yet.
+                    </Text>
+                    <Text fontSize="$2" color="$gray10" textAlign="center">
+                      Create one or ask someone to invite you!
+                    </Text>
+                    <XStack gap="$2" marginTop="$2">
+                      <Button
+                        size="$3"
+                        theme="active"
+                        onPress={() => router.push("/(rooms)/create")}
+                      >
+                        Create room
+                      </Button>
+                      <Button
+                        size="$3"
+                        variant="outlined"
+                        onPress={() => router.push("/(rooms)/list")}
+                      >
+                        Browse
+                      </Button>
+                    </XStack>
+                  </YStack>
+                </Card>
+              )}
+
+              <Button
+                chromeless
+                onPress={handleLogout}
+                disabled={loggingOut}
+                icon={loggingOut ? <Spinner /> : undefined}
+              >
+                Sign out
+              </Button>
+            </YStack>
+          )}
+        </YStack>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -146,33 +206,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  container: {
-    flex: 1,
-    padding: 20,
-    gap: 24,
-  },
-  header: {
-    gap: 8,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  section: {
-    gap: 12,
-  },
-  card: {
-    borderRadius: 16,
-  },
-  loader: {
-    marginVertical: 16,
-  },
-  emptyText: {
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  emptyHint: {
-    textAlign: "center",
-    opacity: 0.6,
+  scrollContent: {
+    flexGrow: 1,
   },
 });

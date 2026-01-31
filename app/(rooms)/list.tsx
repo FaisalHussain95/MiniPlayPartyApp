@@ -3,13 +3,15 @@ import { useCallback, useEffect, useState } from "react";
 import {
     Alert,
     FlatList,
+    Pressable,
     RefreshControl,
     StyleSheet,
-    View,
 } from "react-native";
-import { ActivityIndicator, Button, Card, FAB, Text } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button, Card, H2, Spinner, Text, XStack, YStack } from "tamagui";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { Room, roomsApi } from "@/services/api";
 
 export default function RoomListScreen() {
@@ -17,6 +19,7 @@ export default function RoomListScreen() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const backgroundColor = useThemeColor({}, "background");
 
   const fetchRooms = useCallback(async () => {
     if (!token) return;
@@ -59,14 +62,19 @@ export default function RoomListScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" />
-      </View>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+        <YStack flex={1} justifyContent="center" alignItems="center">
+          <Spinner size="large" />
+        </YStack>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor }]}
+      edges={["bottom"]}
+    >
       <FlatList
         data={rooms}
         keyExtractor={(item) => item.id}
@@ -74,69 +82,79 @@ export default function RoomListScreen() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
+        ListHeaderComponent={
+          <YStack padding="$4" paddingBottom="$2">
+            <H2>Browse Rooms</H2>
+          </YStack>
+        }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge">No rooms yet</Text>
-            <Text variant="bodyMedium" style={styles.emptyHint}>
+          <YStack alignItems="center" paddingVertical="$8">
+            <Text fontSize="$5">No rooms yet</Text>
+            <Text fontSize="$3" color="$gray10">
               Create one to get started!
             </Text>
-          </View>
+          </YStack>
         }
         renderItem={({ item }) => (
-          <Card
-            style={styles.card}
-            onPress={() => router.push(`/(rooms)/${item.id}`)}
-          >
-            <Card.Title
-              title={item.name}
-              subtitle={`${item.users.length} member${item.users.length !== 1 ? "s" : ""}`}
-            />
-            <Card.Actions>
-              <Button onPress={() => handleJoinRoom(item.id)}>Join</Button>
-              <Button onPress={() => router.push(`/(rooms)/${item.id}`)}>
-                View
-              </Button>
-            </Card.Actions>
-          </Card>
+          <Pressable onPress={() => router.push(`/(rooms)/${item.id}`)}>
+            <Card
+              elevation="$1"
+              borderWidth={1}
+              borderColor="$gray5"
+              margin="$2"
+              marginHorizontal="$4"
+              padding="$3"
+            >
+              <XStack justifyContent="space-between" alignItems="center">
+                <YStack flex={1}>
+                  <Text fontWeight="600">{item.name}</Text>
+                  <Text fontSize="$2" color="$gray10">
+                    {item.users.length} member
+                    {item.users.length === 1 ? "" : "s"}
+                  </Text>
+                </YStack>
+                <XStack gap="$2">
+                  <Button
+                    size="$2"
+                    variant="outlined"
+                    onPress={() => handleJoinRoom(item.id)}
+                  >
+                    Join
+                  </Button>
+                  <Button
+                    size="$2"
+                    theme="active"
+                    onPress={() => router.push(`/(rooms)/${item.id}`)}
+                  >
+                    View
+                  </Button>
+                </XStack>
+              </XStack>
+            </Card>
+          </Pressable>
         )}
       />
 
-      <FAB
-        icon="plus"
-        style={styles.fab}
+      <Button
+        size="$5"
+        circular
+        theme="active"
+        position="absolute"
+        bottom="$4"
+        right="$4"
         onPress={() => router.push("/(rooms)/create")}
-      />
-    </View>
+      >
+        +
+      </Button>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   list: {
-    padding: 16,
-    gap: 12,
-  },
-  card: {
-    marginBottom: 12,
-  },
-  empty: {
-    alignItems: "center",
-    marginTop: 48,
-  },
-  emptyHint: {
-    opacity: 0.6,
-    marginTop: 4,
-  },
-  fab: {
-    position: "absolute",
-    right: 16,
-    bottom: 16,
+    paddingBottom: 80,
   },
 });

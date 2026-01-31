@@ -5,10 +5,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  View,
 } from "react-native";
-import { Button, Text, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Button,
+  H1,
+  Input,
+  Paragraph,
+  Spinner,
+  Text,
+  XStack,
+  YStack,
+} from "tamagui";
 
 import { useAuth } from "@/contexts/auth-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -46,48 +54,57 @@ export default function LoginScreen() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.content}>
-          <Text variant="headlineLarge" style={styles.title}>
-            MiniPlayParty
-          </Text>
-          <Text variant="bodyLarge" style={styles.subtitle}>
-            Sign in to join or create rooms
-          </Text>
+        <YStack gap="$5" padding="$5" flex={1} justifyContent="center">
+          <YStack gap="$2" alignItems="center" marginBottom="$4">
+            <H1>MiniPlayParty</H1>
+            <Paragraph color="$gray10" textAlign="center">
+              Sign in to join or create rooms
+            </Paragraph>
+          </YStack>
 
-          <TextInput
-            label="Username"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            style={styles.input}
-          />
+          <YStack gap="$4">
+            <Input
+              size="$4"
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
 
-          <TextInput
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-          />
+            <Input
+              size="$4"
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-          <Button
-            mode="contained"
-            onPress={handleLogin}
-            loading={loading}
-            style={styles.button}
+            <Button
+              size="$4"
+              theme="active"
+              onPress={handleLogin}
+              disabled={loading}
+              icon={loading ? <Spinner /> : undefined}
+            >
+              Sign in
+            </Button>
+          </YStack>
+
+          <XStack
+            gap="$2"
+            justifyContent="center"
+            alignItems="center"
+            marginTop="$4"
           >
-            Sign in
-          </Button>
-
-          <View style={styles.footer}>
-            <Text variant="bodyMedium">Don&apos;t have an account? </Text>
+            <Text>Don&apos;t have an account?</Text>
             <Link href="/(auth)/register" asChild>
-              <Button mode="text" compact>
+              <Text color="$blue10" fontWeight="600">
                 Register
-              </Button>
+              </Text>
             </Link>
-          </View>
-        </View>
+          </XStack>
+        </YStack>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -99,32 +116,5 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    gap: 12,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  subtitle: {
-    textAlign: "center",
-    marginBottom: 24,
-    opacity: 0.7,
-  },
-  input: {
-    marginBottom: 4,
-  },
-  button: {
-    marginTop: 12,
-  },
-  footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 24,
   },
 });

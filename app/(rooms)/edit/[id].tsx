@@ -1,28 +1,34 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, StyleSheet, View } from "react-native";
+import { Alert, FlatList, StyleSheet, Switch } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
-    ActivityIndicator,
     Avatar,
     Button,
-    Checkbox,
-    Divider,
-    List,
+    H3,
+    Input,
+    Label,
+    Separator,
+    SizableText,
+    Spinner,
     Text,
-    TextInput,
-} from "react-native-paper";
+    XStack,
+    YStack,
+} from "tamagui";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { Room, roomsApi } from "@/services/api";
 
 export default function EditRoomScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [room, setRoom] = useState<Room | null>(null);
   const [name, setName] = useState("");
   const [adminIds, setAdminIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const backgroundColor = useThemeColor({}, "background");
 
   const fetchRoom = useCallback(async () => {
     if (!token || !id) return;
@@ -134,135 +140,139 @@ export default function EditRoomScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" />
-      </View>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+        <YStack flex={1} justifyContent="center" alignItems="center">
+          <Spinner size="large" />
+        </YStack>
+      </SafeAreaView>
     );
   }
 
   if (!room) {
     return (
-      <View style={styles.centered}>
-        <Text>Room not found</Text>
-      </View>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+        <YStack flex={1} justifyContent="center" alignItems="center">
+          <Text>Room not found</Text>
+        </YStack>
+      </SafeAreaView>
     );
   }
 
   return (
-    <FlatList
-      data={room.users}
-      keyExtractor={(item) => String(item.id)}
-      contentContainerStyle={styles.container}
-      ListHeaderComponent={
-        <>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
-            Room details
-          </Text>
-          <TextInput
-            label="Room name"
-            value={name}
-            onChangeText={setName}
-            style={styles.input}
-          />
-
-          <Divider style={styles.divider} />
-
-          <Text variant="titleMedium" style={styles.sectionTitle}>
-            Members
-          </Text>
-          <Text variant="bodySmall" style={styles.hint}>
-            Toggle admin status or remove members
-          </Text>
-        </>
-      }
-      renderItem={({ item }) => (
-        <List.Item
-          title={item.name}
-          description={item.username}
-          left={(props) =>
-            item.avatar ? (
-              <Avatar.Image
-                {...props}
-                size={40}
-                source={{ uri: item.avatar }}
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor }]}
+      edges={["bottom"]}
+    >
+      <FlatList
+        data={room.users}
+        keyExtractor={(item) => String(item.id)}
+        contentContainerStyle={styles.container}
+        ListHeaderComponent={
+          <>
+            <H3 marginBottom="$2">Room details</H3>
+            <YStack marginBottom="$4" gap="$2">
+              <Label htmlFor="room-name">Room name</Label>
+              <Input
+                id="room-name"
+                size="$4"
+                placeholder="Enter room name"
+                value={name}
+                onChangeText={setName}
               />
-            ) : (
-              <Avatar.Icon {...props} size={40} icon="account" />
-            )
-          }
-          right={() => (
-            <View style={styles.memberActions}>
-              <View style={styles.adminToggle}>
-                <Text variant="bodySmall">Admin</Text>
-                <Checkbox
-                  status={adminIds.includes(item.id) ? "checked" : "unchecked"}
-                  onPress={() => toggleAdmin(item.id)}
+            </YStack>
+
+            <Separator marginVertical="$4" />
+
+            <H3 marginBottom="$1">Members</H3>
+            <Text fontSize="$2" color="$gray10" marginBottom="$2">
+              Toggle admin status or remove members
+            </Text>
+          </>
+        }
+        renderItem={({ item }) => (
+          <XStack
+            padding="$3"
+            gap="$3"
+            alignItems="center"
+            borderBottomWidth={1}
+            borderColor="$gray5"
+          >
+            <Avatar circular size="$4" backgroundColor="$green9">
+              {item.avatar ? (
+                <Avatar.Image src={item.avatar} />
+              ) : (
+                <Avatar.Fallback
+                  backgroundColor="$green9"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <SizableText color="$white" fontSize="$2">
+                    {item.name.substring(0, 2).toUpperCase()}
+                  </SizableText>
+                </Avatar.Fallback>
+              )}
+            </Avatar>
+            <YStack flex={1}>
+              <Text fontWeight="500">{item.name}</Text>
+              <Text fontSize="$2" color="$gray10">
+                @{item.username}
+              </Text>
+            </YStack>
+            <XStack gap="$3" alignItems="center">
+              <YStack alignItems="center">
+                <Text fontSize="$1" color="$gray10">
+                  Admin
+                </Text>
+                <Switch
+                  value={adminIds.includes(item.id)}
+                  onValueChange={() => toggleAdmin(item.id)}
+                  disabled={item.id === user?.id}
                 />
-              </View>
+              </YStack>
               <Button
-                mode="text"
-                compact
+                size="$2"
+                chromeless
+                theme="red"
                 onPress={() => handleRemoveUser(item.id)}
+                disabled={item.id === user?.id}
+                opacity={item.id === user?.id ? 0.5 : 1}
               >
                 Remove
               </Button>
-            </View>
-          )}
-        />
-      )}
-      ListFooterComponent={
-        <View style={styles.footer}>
-          <Button
-            mode="contained"
-            onPress={handleSave}
-            loading={saving}
-            style={styles.saveButton}
-          >
-            Save changes
-          </Button>
-          <Button mode="outlined" textColor="red" onPress={handleDelete}>
-            Delete room
-          </Button>
-        </View>
-      }
-    />
+            </XStack>
+          </XStack>
+        )}
+        ListFooterComponent={
+          <YStack marginTop="$6" gap="$3">
+            <Button
+              size="$4"
+              theme="active"
+              onPress={handleSave}
+              disabled={saving}
+              icon={saving ? <Spinner /> : undefined}
+            >
+              Save changes
+            </Button>
+            <Button
+              size="$4"
+              variant="outlined"
+              theme="red"
+              onPress={handleDelete}
+            >
+              Delete room
+            </Button>
+          </YStack>
+        }
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     padding: 16,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  sectionTitle: {
-    marginBottom: 8,
-  },
-  hint: {
-    opacity: 0.6,
-    marginBottom: 8,
-  },
-  input: {
-    marginBottom: 8,
-  },
-  divider: {
-    marginVertical: 16,
-  },
-  memberActions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  adminToggle: {
-    alignItems: "center",
-  },
-  footer: {
-    marginTop: 24,
-    gap: 12,
-  },
-  saveButton: {
-    marginBottom: 8,
   },
 });

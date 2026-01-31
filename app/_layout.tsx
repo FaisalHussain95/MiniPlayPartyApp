@@ -1,16 +1,24 @@
 import {
-    DarkTheme,
-    DefaultTheme,
-    ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
 } from "@react-navigation/native";
+import { config } from "@tamagui/config/v3";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { TamaguiProvider, createTamagui } from "tamagui";
 
 import { AuthProvider } from "@/contexts/auth-context";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+
+const tamaguiConfig = createTamagui(config);
+
+type Conf = typeof tamaguiConfig;
+declare module "tamagui" {
+  interface TamaguiCustomConfig extends Conf {}
+}
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -18,12 +26,14 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const paperTheme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <PaperProvider theme={paperTheme}>
+      <TamaguiProvider
+        config={tamaguiConfig}
+        defaultTheme={colorScheme ?? "light"}
+      >
+        <AuthProvider>
           <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
@@ -38,8 +48,8 @@ export default function RootLayout() {
             </Stack>
             <StatusBar style="auto" />
           </ThemeProvider>
-        </PaperProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </TamaguiProvider>
     </SafeAreaProvider>
   );
 }

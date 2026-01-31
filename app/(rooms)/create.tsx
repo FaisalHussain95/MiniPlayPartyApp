@@ -1,21 +1,23 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
 } from "react-native";
-import { Button, Text, TextInput } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button, H2, Input, Label, Paragraph, Spinner, YStack } from "tamagui";
 
 import { useAuth } from "@/contexts/auth-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { roomsApi } from "@/services/api";
 
 export default function CreateRoomScreen() {
   const { token } = useAuth();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const backgroundColor = useThemeColor({}, "background");
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -44,58 +46,50 @@ export default function CreateRoomScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <SafeAreaView
+      style={[styles.container, { backgroundColor }]}
+      edges={["bottom"]}
     >
-      <View style={styles.content}>
-        <Text variant="headlineSmall" style={styles.title}>
-          Create a new room
-        </Text>
-        <Text variant="bodyMedium" style={styles.subtitle}>
-          Give your room a name and invite friends later
-        </Text>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <YStack flex={1} padding="$5" gap="$3">
+          <H2>Create a new room</H2>
+          <Paragraph color="$gray10">
+            Give your room a name and invite friends later
+          </Paragraph>
 
-        <TextInput
-          label="Room name"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-        />
+          <YStack marginTop="$4" gap="$2">
+            <Label htmlFor="room-name">Room name</Label>
+            <Input
+              id="room-name"
+              size="$4"
+              placeholder="Enter room name"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="none"
+            />
+          </YStack>
 
-        <Button
-          mode="contained"
-          onPress={handleCreate}
-          loading={loading}
-          style={styles.button}
-        >
-          Create room
-        </Button>
-      </View>
-    </KeyboardAvoidingView>
+          <Button
+            size="$4"
+            theme="active"
+            marginTop="$4"
+            onPress={handleCreate}
+            disabled={loading}
+            icon={loading ? <Spinner /> : undefined}
+          >
+            Create room
+          </Button>
+        </YStack>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-    gap: 12,
-  },
-  title: {
-    marginBottom: 4,
-  },
-  subtitle: {
-    opacity: 0.7,
-    marginBottom: 16,
-  },
-  input: {
-    marginBottom: 8,
-  },
-  button: {
-    marginTop: 12,
   },
 });
