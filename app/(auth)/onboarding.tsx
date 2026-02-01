@@ -73,7 +73,7 @@ export default function OnboardingScreen() {
           <YStack gap="$2" alignItems="center" marginBottom="$4">
             <H1>Welcome to MiniPlayParty</H1>
             <Paragraph color="$gray10" textAlign="center">
-              Join the fun! Just enter your display name and we'll take care of
+              Join the fun! Just enter your display name and we&apos;ll take care of
               the rest.
             </Paragraph>
           </YStack>
@@ -113,7 +113,6 @@ export default function OnboardingScreen() {
               value={displayName}
               onChangeText={setDisplayName}
               autoCapitalize="words"
-              autoCorrect={false}
             />
 
             <Button

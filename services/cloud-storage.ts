@@ -1,8 +1,8 @@
-import CloudStorage from "react-native-cloud-storage";
+import { CloudStorage } from "react-native-cloud-storage";
 
 import { StoredCredentials } from "@/utils/auth-helpers";
 
-const CREDENTIALS_KEY = "user_credentials";
+const CREDENTIALS_FILE = "credentials.json";
 
 /**
  * Cloud storage service for persisting user credentials
@@ -13,7 +13,7 @@ export const cloudStorageService = {
    */
   async saveCredentials(credentials: StoredCredentials): Promise<void> {
     try {
-      await CloudStorage.set(CREDENTIALS_KEY, JSON.stringify(credentials));
+      await CloudStorage.writeFile(CREDENTIALS_FILE, JSON.stringify(credentials));
     } catch (error) {
       console.error("Failed to save credentials to cloud storage:", error);
       throw error;
@@ -25,7 +25,11 @@ export const cloudStorageService = {
    */
   async loadCredentials(): Promise<StoredCredentials | null> {
     try {
-      const data = await CloudStorage.get(CREDENTIALS_KEY);
+      const exists = await CloudStorage.exists(CREDENTIALS_FILE);
+      if (!exists) {
+        return null;
+      }
+      const data = await CloudStorage.readFile(CREDENTIALS_FILE);
       if (data) {
         return JSON.parse(data) as StoredCredentials;
       }
@@ -41,7 +45,7 @@ export const cloudStorageService = {
    */
   async removeCredentials(): Promise<void> {
     try {
-      await CloudStorage.remove(CREDENTIALS_KEY);
+      await CloudStorage.unlink(CREDENTIALS_FILE);
     } catch (error) {
       console.error("Failed to remove credentials from cloud storage:", error);
       throw error;
