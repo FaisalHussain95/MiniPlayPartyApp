@@ -99,17 +99,17 @@ export default function HomeScreen() {
                   flex={1}
                   size="$4"
                   theme="active"
-                  onPress={() => router.push("/(auth)/login")}
+                  onPress={() => router.push("/(auth)/onboarding")}
                 >
-                  Sign in
+                  Get started
                 </Button>
                 <Button
                   flex={1}
                   size="$4"
                   variant="outlined"
-                  onPress={() => router.push("/(auth)/register")}
+                  onPress={() => router.push("/(auth)/login")}
                 >
-                  Register
+                  Sign in
                 </Button>
               </>
             )}
