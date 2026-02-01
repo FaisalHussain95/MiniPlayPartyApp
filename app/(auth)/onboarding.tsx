@@ -73,8 +73,8 @@ export default function OnboardingScreen() {
           <YStack gap="$2" alignItems="center" marginBottom="$4">
             <H1>Welcome to MiniPlayParty</H1>
             <Paragraph color="$gray10" textAlign="center">
-              Join the fun! Just enter your display name and we&apos;ll take care of
-              the rest.
+              Just enter your display name to get started. We&apos;ll securely create
+              and save your account credentials automatically.
             </Paragraph>
           </YStack>
 
@@ -132,10 +132,14 @@ export default function OnboardingScreen() {
             alignItems="center"
             marginTop="$4"
           >
-            <Text color="$gray10" fontSize="$2" textAlign="center">
-              By continuing, your credentials will be securely stored for easy
-              access next time
-            </Text>
+            <YStack alignItems="center" gap="$1">
+              <Text color="$gray10" fontSize="$2" textAlign="center">
+                Your account credentials will be automatically generated
+              </Text>
+              <Text color="$gray10" fontSize="$2" textAlign="center">
+                and securely stored in your device&apos;s cloud storage
+              </Text>
+            </YStack>
           </XStack>
 
           <XStack

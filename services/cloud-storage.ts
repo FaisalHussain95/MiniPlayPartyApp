@@ -6,6 +6,13 @@ const CREDENTIALS_FILE = "credentials.json";
 
 /**
  * Cloud storage service for persisting user credentials
+ * 
+ * SECURITY NOTE: This implementation stores passwords in cloud storage as per requirements.
+ * In a production environment, consider these alternatives:
+ * - Use device keychain/keystore for secure credential storage
+ * - Implement OAuth or social login instead
+ * - Use password reset flows instead of storing passwords
+ * - Encrypt credentials before cloud storage
  */
 export const cloudStorageService = {
   /**
@@ -31,7 +38,18 @@ export const cloudStorageService = {
       }
       const data = await CloudStorage.readFile(CREDENTIALS_FILE);
       if (data) {
-        return JSON.parse(data) as StoredCredentials;
+        const parsed = JSON.parse(data);
+        // Validate the structure
+        if (
+          typeof parsed === "object" &&
+          typeof parsed.username === "string" &&
+          typeof parsed.password === "string" &&
+          typeof parsed.displayName === "string"
+        ) {
+          return parsed as StoredCredentials;
+        }
+        console.error("Invalid credentials format in cloud storage");
+        return null;
       }
       return null;
     } catch (error) {

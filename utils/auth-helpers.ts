@@ -1,15 +1,18 @@
+import * as Crypto from "expo-crypto";
+
 /**
  * Utility functions for seamless authentication
  */
 
 /**
- * Generates a random alphanumeric string of specified length
+ * Generates a cryptographically secure random alphanumeric string of specified length
  */
-function generateRandomString(length: number): string {
+async function generateRandomString(length: number): Promise<string> {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const randomBytes = await Crypto.getRandomBytesAsync(length);
   let result = "";
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(randomBytes[i] % chars.length);
   }
   return result;
 }
@@ -27,9 +30,9 @@ function sanitizeDisplayName(displayName: string): string {
  * Format: sanitizedDisplayName + 8 random alphanumeric characters
  * Ensures: 3-30 characters, alphanumeric only
  */
-export function generateUsername(displayName: string): string {
+export async function generateUsername(displayName: string): Promise<string> {
   const sanitized = sanitizeDisplayName(displayName);
-  const randomSuffix = generateRandomString(8);
+  const randomSuffix = await generateRandomString(8);
   
   // Start with sanitized name (or default if empty)
   let base = sanitized || "user";
@@ -58,19 +61,21 @@ export function generateUsername(displayName: string): string {
 }
 
 /**
- * Generates a secure random password
+ * Generates a cryptographically secure random password
  * Ensures: 6-200 characters
  */
-export function generatePassword(): string {
+export async function generatePassword(): Promise<string> {
   // Generate a 32-character secure password
   // Using a mix of alphanumeric and special characters
   const length = 32;
   const chars =
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  
+  const randomBytes = await Crypto.getRandomBytesAsync(length);
   let password = "";
   
   for (let i = 0; i < length; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+    password += chars.charAt(randomBytes[i] % chars.length);
   }
   
   // Validate: should be 6-200 chars

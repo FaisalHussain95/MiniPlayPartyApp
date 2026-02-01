@@ -92,8 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       while (!success && attempts < maxAttempts) {
         attempts++;
         try {
-          const username = generateUsername(displayName);
-          const password = generatePassword();
+          const username = await generateUsername(displayName);
+          const password = await generatePassword();
 
           // Try to register with generated credentials
           const { token } = await authApi.register({ username, password, name: displayName });
@@ -112,11 +112,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           success = true;
         } catch (error) {
-          // If username is taken, try again with new random suffix
+          // Check if it's a username conflict error
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          const isUsernameConflict = 
+            errorMessage.toLowerCase().includes("username") &&
+            (errorMessage.toLowerCase().includes("taken") ||
+             errorMessage.toLowerCase().includes("exists") ||
+             errorMessage.toLowerCase().includes("already"));
+          
+          // Only retry for username conflicts
+          if (isUsernameConflict && attempts < maxAttempts) {
+            // Loop will try again with new username
+            continue;
+          }
+          
+          // For other errors or max attempts reached, throw
           if (attempts >= maxAttempts) {
             throw new Error("Failed to create account after multiple attempts. Please try again.");
+          } else {
+            throw error; // Re-throw non-username-conflict errors
           }
-          // Otherwise, loop will try again
         }
       }
     },
