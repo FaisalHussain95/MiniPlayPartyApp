@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import { authApi, User } from "@/services/api";
-import { cloudStorageService } from "@/services/cloud-storage";
+import { credentialStorageService } from "@/services/credential-storage";
 import { generatePassword, generateUsername, StoredCredentials } from "@/utils/auth-helpers";
 
 type AuthState = {
@@ -50,13 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setState({ token: storedToken, user, isLoading: false, storedCredentials: null });
         } else {
           // Check if there are credentials in cloud storage
-          const cloudCreds = await cloudStorageService.loadCredentials();
+          const cloudCreds = await credentialStorageService.loadCredentials();
           setState((s) => ({ ...s, isLoading: false, storedCredentials: cloudCreds }));
         }
       } catch {
         await AsyncStorage.removeItem(TOKEN_KEY);
         // Still try to load cloud credentials even if token auth failed
-        const cloudCreds = await cloudStorageService.loadCredentials();
+        const cloudCreds = await credentialStorageService.loadCredentials();
         setState({ token: null, user: null, isLoading: false, storedCredentials: cloudCreds });
       }
     })();
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { token } = await authApi.register({ username, password, name: displayName });
           
           // Save credentials to cloud storage
-          await cloudStorageService.saveCredentials({
+          await credentialStorageService.saveCredentials({
             username,
             password,
             displayName,

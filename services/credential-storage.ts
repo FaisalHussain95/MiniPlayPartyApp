@@ -15,7 +15,7 @@ const CREDENTIALS_KEY = "user_credentials";
  * - Use password reset flows instead of storing passwords
  * - Encrypt credentials before storage
  */
-export const cloudStorageService = {
+export const credentialStorageService = {
   /**
    * Save credentials to local storage
    */
