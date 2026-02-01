@@ -1,42 +1,39 @@
-import { CloudStorage } from "react-native-cloud-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { StoredCredentials } from "@/utils/auth-helpers";
 
-const CREDENTIALS_FILE = "credentials.json";
+const CREDENTIALS_KEY = "user_credentials";
 
 /**
- * Cloud storage service for persisting user credentials
+ * Local storage service for persisting user credentials
+ * Uses AsyncStorage for Expo Go compatibility
  * 
- * SECURITY NOTE: This implementation stores passwords in cloud storage as per requirements.
+ * SECURITY NOTE: This implementation stores passwords in local storage as per requirements.
  * In a production environment, consider these alternatives:
  * - Use device keychain/keystore for secure credential storage
  * - Implement OAuth or social login instead
  * - Use password reset flows instead of storing passwords
- * - Encrypt credentials before cloud storage
+ * - Encrypt credentials before storage
  */
 export const cloudStorageService = {
   /**
-   * Save credentials to cloud storage
+   * Save credentials to local storage
    */
   async saveCredentials(credentials: StoredCredentials): Promise<void> {
     try {
-      await CloudStorage.writeFile(CREDENTIALS_FILE, JSON.stringify(credentials));
+      await AsyncStorage.setItem(CREDENTIALS_KEY, JSON.stringify(credentials));
     } catch (error) {
-      console.error("Failed to save credentials to cloud storage:", error);
+      console.error("Failed to save credentials to storage:", error);
       throw error;
     }
   },
 
   /**
-   * Load credentials from cloud storage
+   * Load credentials from local storage
    */
   async loadCredentials(): Promise<StoredCredentials | null> {
     try {
-      const exists = await CloudStorage.exists(CREDENTIALS_FILE);
-      if (!exists) {
-        return null;
-      }
-      const data = await CloudStorage.readFile(CREDENTIALS_FILE);
+      const data = await AsyncStorage.getItem(CREDENTIALS_KEY);
       if (data) {
         const parsed = JSON.parse(data);
         // Validate the structure
@@ -48,24 +45,24 @@ export const cloudStorageService = {
         ) {
           return parsed as StoredCredentials;
         }
-        console.error("Invalid credentials format in cloud storage");
+        console.error("Invalid credentials format in storage");
         return null;
       }
       return null;
     } catch (error) {
-      console.error("Failed to load credentials from cloud storage:", error);
+      console.error("Failed to load credentials from storage:", error);
       return null;
     }
   },
 
   /**
-   * Remove credentials from cloud storage
+   * Remove credentials from local storage
    */
   async removeCredentials(): Promise<void> {
     try {
-      await CloudStorage.unlink(CREDENTIALS_FILE);
+      await AsyncStorage.removeItem(CREDENTIALS_KEY);
     } catch (error) {
-      console.error("Failed to remove credentials from cloud storage:", error);
+      console.error("Failed to remove credentials from storage:", error);
       throw error;
     }
   },

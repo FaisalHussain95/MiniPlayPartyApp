@@ -94,24 +94,13 @@ export default function HomeScreen() {
                 </Button>
               </>
             ) : (
-              <>
-                <Button
-                  flex={1}
-                  size="$4"
-                  theme="active"
-                  onPress={() => router.push("/(auth)/onboarding")}
-                >
-                  Get started
-                </Button>
-                <Button
-                  flex={1}
-                  size="$4"
-                  variant="outlined"
-                  onPress={() => router.push("/(auth)/login")}
-                >
-                  Sign in
-                </Button>
-              </>
+              <Button
+                size="$4"
+                theme="active"
+                onPress={() => router.push("/(auth)/onboarding")}
+              >
+                Get started
+              </Button>
             )}
           </XStack>
 

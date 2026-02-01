@@ -73,8 +73,8 @@ export default function OnboardingScreen() {
           <YStack gap="$2" alignItems="center" marginBottom="$4">
             <H1>Welcome to MiniPlayParty</H1>
             <Paragraph color="$gray10" textAlign="center">
-              Just enter your display name to get started. We&apos;ll securely create
-              and save your account credentials automatically.
+              Just enter your display name to get started. We&apos;ll create
+              your account automatically.
             </Paragraph>
           </YStack>
 
@@ -137,25 +137,9 @@ export default function OnboardingScreen() {
                 Your account credentials will be automatically generated
               </Text>
               <Text color="$gray10" fontSize="$2" textAlign="center">
-                and securely stored in your device&apos;s cloud storage
+                and securely stored on your device
               </Text>
             </YStack>
-          </XStack>
-
-          <XStack
-            gap="$2"
-            justifyContent="center"
-            alignItems="center"
-            marginTop="$2"
-          >
-            <Text fontSize="$2">Have username and password?</Text>
-            <Button
-              chromeless
-              size="$2"
-              onPress={() => router.push("/(auth)/login")}
-            >
-              Sign in
-            </Button>
           </XStack>
         </YStack>
       </KeyboardAvoidingView>
